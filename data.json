@@ -1,0 +1,22 @@
+{
+  "levels": {
+    "5": {
+      "term1": {
+        "math": [
+          {
+            "question": "احسب: 12 × 3",
+            "options": ["36", "30", "24", "15"],
+            "answer": 0,
+            "explanation": "12 × 3 = 36"
+          },
+          {
+            "question": "احسب: 15 + 5",
+            "options": ["10", "20", "25", "30"],
+            "answer": 1,
+            "explanation": "15 + 5 = 20"
+          }
+        ]
+      }
+    }
+  }
+}
