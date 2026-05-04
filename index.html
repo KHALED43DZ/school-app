@@ -1,47 +1,1243 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>مراجعة الابتدائي</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0284c7">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="مراجعة 3 ابتدائي">
+<meta name="description" content="تطبيق مراجعة اختبارات الفصل الثالث للسنة الثالثة ابتدائي - المدارس الجزائرية">
+<title>مراجعة اختبارات الفصل الثالث - السنة الثالثة ابتدائي</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Amiri:wght@400;700&display=swap');
+
+  :root {
+    --sky: #0ea5e9;
+    --sun: #fbbf24;
+    --grass: #22c55e;
+    --rose: #f43f5e;
+    --purple: #a855f7;
+    --ocean: #06b6d4;
+    --bg: #f0f9ff;
+    --card: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --correct: #16a34a;
+    --wrong: #dc2626;
+    --radius: 20px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Tajawal', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    direction: rtl;
+    overflow-x: hidden;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%);
+    padding: 20px 16px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -30px; left: -30px;
+    width: 100px; height: 100px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -20px; right: -20px;
+    width: 80px; height: 80px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+  header h1 {
+    font-size: clamp(1.3rem, 5vw, 2rem);
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    position: relative;
+    z-index: 1;
+  }
+  header p {
+    color: rgba(255,255,255,0.9);
+    font-size: 0.95rem;
+    margin-top: 4px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ===== STARS / SCORE ===== */
+  .score-bar {
+    background: white;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 3px solid var(--sun);
+  }
+  .score-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #fef9c3, #fde68a);
+    border: 2px solid var(--sun);
+    border-radius: 30px;
+    padding: 6px 14px;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #92400e;
+  }
+  .score-badge span { font-size: 1.3rem; }
+
+  /* ===== TABS ===== */
+  .tabs {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    padding: 12px 12px 0;
+    background: white;
+    border-bottom: 2px solid var(--border);
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex-shrink: 0;
+    padding: 10px 16px;
+    border: none;
+    background: none;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    color: var(--muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .tab.active {
+    color: var(--sky);
+    border-bottom-color: var(--sky);
+  }
+  .tab:hover { color: var(--sky); }
+  .tab-icon { font-size: 1.2rem; }
+
+  /* ===== MAIN CONTENT ===== */
+  .content {
+    padding: 16px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* ===== SUBJECT OVERVIEW ===== */
+  .subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .subject-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 16px 12px;
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.25s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .subject-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+  .subject-card.active { border-color: var(--sky); background: #f0f9ff; }
+  .subject-card .icon { font-size: 2.2rem; margin-bottom: 8px; }
+  .subject-card h3 { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+  .subject-card .count {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 4px;
+    background: var(--bg);
+    border-radius: 20px;
+    padding: 2px 8px;
+    display: inline-block;
+    margin-top: 6px;
+  }
+
+  /* ===== QUIZ SECTION ===== */
+  .quiz-container { display: none; }
+  .quiz-container.active { display: block; }
+
+  .quiz-header {
+    background: white;
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .quiz-title { font-size: 1.1rem; font-weight: 800; }
+  .quiz-progress {
+    font-size: 0.85rem;
+    color: var(--muted);
+    background: var(--bg);
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  .progress-bar {
+    background: var(--border);
+    height: 8px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--sky), var(--ocean));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* ===== QUESTION CARD ===== */
+  .question-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    border: 2px solid var(--border);
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--sky), var(--ocean));
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  .q-text {
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.7;
+    margin-bottom: 16px;
+    color: #1e293b;
+    font-family: 'Amiri', serif;
+  }
+
+  .q-hint {
+    background: #fef3c7;
+    border-right: 4px solid var(--sun);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    color: #78350f;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  /* Options */
+  .options { display: grid; gap: 10px; }
+  .option {
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 16px;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    background: white;
+    text-align: right;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+  }
+  .option:hover:not(.disabled) {
+    border-color: var(--sky);
+    background: #f0f9ff;
+    transform: translateX(-2px);
+  }
+  .option.correct {
+    border-color: var(--correct);
+    background: #f0fdf4;
+    color: var(--correct);
+  }
+  .option.wrong {
+    border-color: var(--wrong);
+    background: #fef2f2;
+    color: var(--wrong);
+  }
+  .option.disabled { cursor: default; }
+  .option-letter {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    border: 2px solid var(--border);
+  }
+  .option.correct .option-letter { background: var(--correct); color: white; border-color: var(--correct); }
+  .option.wrong .option-letter { background: var(--wrong); color: white; border-color: var(--wrong); }
+
+  /* Fill-in input */
+  .fill-input {
+    width: 100%;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-family: 'Amiri', serif;
+    font-size: 1.1rem;
+    text-align: right;
+    direction: rtl;
+    outline: none;
+    transition: border-color 0.2s;
+    background: white;
+    color: var(--text);
+  }
+  .fill-input:focus { border-color: var(--sky); }
+  .fill-input.correct { border-color: var(--correct); background: #f0fdf4; }
+  .fill-input.wrong { border-color: var(--wrong); background: #fef2f2; }
+
+  /* Feedback */
+  .feedback {
+    display: none;
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    align-items: center;
+    gap: 8px;
+  }
+  .feedback.show { display: flex; }
+  .feedback.correct-fb { background: #dcfce7; color: var(--correct); }
+  .feedback.wrong-fb { background: #fee2e2; color: var(--wrong); }
+
+  /* Buttons */
+  .btn {
+    border: none;
+    border-radius: 14px;
+    padding: 12px 24px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--sky), var(--ocean));
+    color: white;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4); }
+  .btn-success {
+    background: linear-gradient(135deg, var(--grass), #16a34a);
+    color: white;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  }
+  .btn-danger {
+    background: linear-gradient(135deg, var(--rose), #be123c);
+    color: white;
+  }
+  .btn-secondary {
+    background: var(--bg);
+    color: var(--text);
+    border: 2px solid var(--border);
+  }
+
+  .action-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+
+  /* ===== RESULTS ===== */
+  .results-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 28px 20px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    margin-bottom: 16px;
+  }
+  .results-emoji { font-size: 4rem; margin-bottom: 12px; }
+  .results-score { font-size: 2.5rem; font-weight: 900; }
+  .results-msg { font-size: 1.1rem; color: var(--muted); margin-top: 8px; }
+  .results-breakdown {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .rb-item {
+    background: var(--bg);
+    border-radius: 14px;
+    padding: 14px;
+    text-align: center;
+  }
+  .rb-num { font-size: 1.8rem; font-weight: 900; }
+  .rb-label { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+  .rb-correct .rb-num { color: var(--correct); }
+  .rb-wrong .rb-num { color: var(--wrong); }
+
+  /* ===== HOME SECTION ===== */
+  .home-section { display: block; }
+  .home-section.hidden { display: none; }
+  
+  .welcome-banner {
+    background: linear-gradient(135deg, #0284c7, #0ea5e9);
+    border-radius: var(--radius);
+    padding: 20px;
+    color: white;
+    margin-bottom: 16px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .welcome-banner::before {
+    content: '📚';
+    position: absolute;
+    font-size: 5rem;
+    opacity: 0.1;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .welcome-banner h2 { font-size: 1.2rem; font-weight: 900; }
+  .welcome-banner p { font-size: 0.9rem; opacity: 0.9; margin-top: 6px; }
+
+  .section-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::before {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: var(--border);
+    order: 2;
+  }
+
+  /* Tips section */
+  .tips-grid {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .tip-card {
+    background: white;
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-right: 4px solid var(--sky);
+  }
+  .tip-icon { font-size: 1.5rem; }
+  .tip-text { font-size: 0.9rem; font-weight: 600; }
+
+  /* ===== LOADING ===== */
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-size: 1.1rem;
+  }
+  .loading::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid var(--border);
+    border-top-color: var(--sky);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== CONFETTI ===== */
+  .confetti-container {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 480px) {
+    .subjects-grid { grid-template-columns: repeat(3, 1fr); }
+    .results-breakdown { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ===== PWA INSTALL ===== */
+  #installBtn {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9000;
+    background: linear-gradient(135deg, #0284c7, #0ea5e9);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 24px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(2,132,199,0.45);
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    animation: bounce 2s infinite;
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-6px); }
+  }
+  .offline-banner {
+    display: none;
+    background: #fbbf24;
+    color: #78350f;
+    text-align: center;
+    padding: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+</style>
 </head>
 <body>
 
-<div class="container">
-  <h1>📚 مراجعة الابتدائي</h1>
+<div class="offline-banner" id="offlineBanner">📵 أنت غير متصل بالإنترنت — التطبيق يعمل بدون إنترنت!</div>
+<div class="confetti-container" id="confetti"></div>
+<button id="installBtn" onclick="installApp()">📲 ثبّت التطبيق على جهازك</button>
 
-  <div id="setup">
-    <select id="level">
-      <option value="5">السنة 5</option>
-    </select>
+<header>
+  <h1>🎓 مراجعة الفصل الثالث</h1>
+  <p>السنة الثالثة ابتدائي — المدارس الجزائرية 🇩🇿</p>
+</header>
 
-    <select id="term">
-      <option value="term1">الفصل 1</option>
-    </select>
-
-    <select id="subject">
-      <option value="math">رياضيات</option>
-    </select>
-
-    <button onclick="startQuiz()">ابدأ</button>
+<div class="score-bar">
+  <div class="score-badge"><span>⭐</span> نقاطي: <strong id="totalScore">0</strong></div>
+  <div class="score-badge" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0);border-color:#22c55e;color:#14532d">
+    <span>✅</span> صواب: <strong id="totalCorrect">0</strong>
   </div>
-
-  <div id="quiz" class="hidden">
-    <div id="score">0 / 0</div>
-    <h2 id="question"></h2>
-    <div id="options"></div>
-    <p id="feedback"></p>
-    <button onclick="nextQuestion()">التالي</button>
+  <div class="score-badge" style="background:linear-gradient(135deg,#fee2e2,#fecaca);border-color:#f43f5e;color:#7f1d1d">
+    <span>❌</span> خطأ: <strong id="totalWrong">0</strong>
   </div>
 </div>
 
-<script src="app.js"></script>
+<div class="tabs">
+  <button class="tab active" onclick="showTab('home')"><span class="tab-icon">🏠</span> الرئيسية</button>
+  <button class="tab" onclick="showTab('arabic')"><span class="tab-icon">📖</span> عربية</button>
+  <button class="tab" onclick="showTab('math')"><span class="tab-icon">🔢</span> رياضيات</button>
+  <button class="tab" onclick="showTab('science')"><span class="tab-icon">🔬</span> علوم</button>
+  <button class="tab" onclick="showTab('islamic')"><span class="tab-icon">☪️</span> إسلامية</button>
+  <button class="tab" onclick="showTab('civic')"><span class="tab-icon">🏛️</span> مدنية</button>
+  <button class="tab" onclick="showTab('history')"><span class="tab-icon">🗺️</span> تاريخ وجغرافيا</button>
+</div>
+
+<div class="content">
+
+  <!-- HOME -->
+  <div id="tab-home" class="home-section">
+    <div class="welcome-banner">
+      <h2>أهلاً بك يا بطل! 🌟</h2>
+      <p>راجع دروسك واستعد لاختبارات الفصل الثالث بكل ثقة</p>
+    </div>
+
+    <div class="section-title">المواد الدراسية</div>
+    <div class="subjects-grid">
+      <div class="subject-card" onclick="showTab('arabic')">
+        <div class="icon">📖</div>
+        <h3>اللغة العربية</h3>
+        <span class="count">35 سؤال</span>
+      </div>
+      <div class="subject-card" onclick="showTab('math')">
+        <div class="icon">🔢</div>
+        <h3>الرياضيات</h3>
+        <span class="count">40 سؤال</span>
+      </div>
+      <div class="subject-card" onclick="showTab('science')">
+        <div class="icon">🔬</div>
+        <h3>العلوم</h3>
+        <span class="count">25 سؤال</span>
+      </div>
+      <div class="subject-card" onclick="showTab('islamic')">
+        <div class="icon">☪️</div>
+        <h3>الإسلامية</h3>
+        <span class="count">25 سؤال</span>
+      </div>
+      <div class="subject-card" onclick="showTab('civic')">
+        <div class="icon">🏛️</div>
+        <h3>المدنية</h3>
+        <span class="count">20 سؤال</span>
+      </div>
+      <div class="subject-card" onclick="showTab('history')">
+        <div class="icon">🗺️</div>
+        <h3>تاريخ وجغرافيا</h3>
+        <span class="count">20 سؤال</span>
+      </div>
+    </div>
+
+    <div class="section-title">نصائح للمراجعة</div>
+    <div class="tips-grid">
+      <div class="tip-card">
+        <span class="tip-icon">⏰</span>
+        <span class="tip-text">خصص وقتاً للمراجعة كل يوم قبل الاختبار</span>
+      </div>
+      <div class="tip-card">
+        <span class="tip-icon">📝</span>
+        <span class="tip-text">اقرأ السؤال بعناية قبل الإجابة</span>
+      </div>
+      <div class="tip-card">
+        <span class="tip-icon">💪</span>
+        <span class="tip-text">لا تيأس عند الخطأ، المحاولة هي طريق النجاح</span>
+      </div>
+      <div class="tip-card">
+        <span class="tip-icon">🌟</span>
+        <span class="tip-text">راجع الإجابات الخاطئة لتتعلم منها</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARABIC -->
+  <div id="tab-arabic" class="quiz-container">
+    <div id="quiz-arabic"></div>
+  </div>
+
+  <!-- MATH -->
+  <div id="tab-math" class="quiz-container">
+    <div id="quiz-math"></div>
+  </div>
+
+  <!-- SCIENCE -->
+  <div id="tab-science" class="quiz-container">
+    <div id="quiz-science"></div>
+  </div>
+
+  <!-- ISLAMIC -->
+  <div id="tab-islamic" class="quiz-container">
+    <div id="quiz-islamic"></div>
+  </div>
+
+  <!-- CIVIC -->
+  <div id="tab-civic" class="quiz-container">
+    <div id="quiz-civic"></div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="tab-history" class="quiz-container">
+    <div id="quiz-history"></div>
+  </div>
+
+</div>
+
+<script>
+// ================= DATA =================
+const quizData = {
+
+  arabic: {
+    title: 'اللغة العربية 📖',
+    color: '#0ea5e9',
+    questions: [
+      // --- قراءة وفهم ---
+      { type:'mcq', badge:'قراءة وفهم', text:'اقرأ النص ثم أجب:\n"ذهب أحمد إلى المدرسة مبكراً، استعدّ لدروسه وأجاب عن أسئلة الأستاذ بنجاح."\n\nمَن هو بطل القصة؟', options:['الأستاذ','أحمد','التلميذ المجتهد','المدرسة'], answer:1 },
+      { type:'mcq', badge:'قراءة وفهم', text:'من النص السابق، متى ذهب أحمد إلى المدرسة؟', options:['في المساء','بعد الغداء','مبكراً','في الليل'], answer:2 },
+      { type:'mcq', badge:'فهم المقروء', text:'"تُعدّ الغابة بيتاً لكثير من الحيوانات، منها الأسد والنمر والغزال."\nما المكان الذي تعيش فيه هذه الحيوانات؟', options:['البحر','الغابة','المدينة','المزرعة'], answer:1 },
+      { type:'mcq', badge:'فهم المقروء', text:'"زرع الفلاح القمح في حقله وسقاه بانتظام حتى نضج ونال محصولاً وفيراً."\nماذا زرع الفلاح؟', options:['الشعير','الذرة','القمح','الطماطم'], answer:2 },
+      { type:'mcq', badge:'فهم المقروء', text:'من النص السابق، ما الذي فعله الفلاح لنجاح زراعته؟', options:['تركه بدون ماء','سقاه بانتظام','باعه مبكراً','حرث الأرض فقط'], answer:1 },
+      { type:'mcq', badge:'فهم المقروء', text:'"تحبّ سارة القراءة كثيراً، تقرأ كل يوم كتاباً جديداً وتستفيد من المعلومات التي تجدها."\nما هواية سارة؟', options:['الرسم','الطبخ','القراءة','الرياضة'], answer:2 },
+      // --- نحو ---
+      { type:'mcq', badge:'نحو — المبتدأ والخبر', text:'عيّن المبتدأ في الجملة: "الطالبُ مجتهدٌ"', options:['مجتهدٌ','الطالبُ','في','المدرسة'], answer:1 },
+      { type:'mcq', badge:'نحو — المبتدأ والخبر', text:'ما الخبر في الجملة: "الجوُّ جميلٌ"؟', options:['الجوُّ','هو','جميلٌ','في الصباح'], answer:2 },
+      { type:'mcq', badge:'نحو — المبتدأ والخبر', text:'حدّد المبتدأ في: "السماءُ صافيةٌ"', options:['صافيةٌ','السماءُ','اليوم','جداً'], answer:1 },
+      { type:'mcq', badge:'نحو — المبتدأ والخبر', text:'ما الخبر في: "النهرُ عميقٌ"؟', options:['النهرُ','الماءُ','عميقٌ','كبيرٌ'], answer:2 },
+      { type:'mcq', badge:'نحو — الجملة الفعلية', text:'حدّد الفعل في الجملة: "كتب التلميذُ الدرسَ"', options:['التلميذُ','الدرسَ','كتب','في'], answer:2 },
+      { type:'mcq', badge:'نحو — الجملة الفعلية', text:'ما الفاعل في الجملة: "لعب الولدُ في الحديقة"؟', options:['لعب','الولدُ','الحديقة','في'], answer:1 },
+      // --- صرف وجموع ---
+      { type:'mcq', badge:'صرف — الجمع', text:'ما جمع كلمة "كتاب"؟', options:['كُتيّب','كُتّاب','كُتُب','مكتبة'], answer:2 },
+      { type:'mcq', badge:'صرف — الجمع', text:'ما جمع كلمة "قلم"؟', options:['أقلام','قلمان','قليمة','مقلم'], answer:0 },
+      { type:'mcq', badge:'صرف — الجمع', text:'ما جمع كلمة "باب"؟', options:['أبواب','بابان','بُوَيْب','مباب'], answer:0 },
+      { type:'mcq', badge:'صرف — الجمع', text:'ما جمع كلمة "بيت"؟', options:['بيوتات','بُيُوت','بَيتَان','أَبيات'], answer:1 },
+      { type:'mcq', badge:'صرف — الجمع', text:'ما جمع كلمة "شجرة"؟', options:['شجرات','أشجار','شجيرات','كل ما سبق صحيح'], answer:3 },
+      { type:'mcq', badge:'صرف — المفرد والجمع', text:'ما مفرد كلمة "أقلام"؟', options:['قلوم','قليم','قلم','مقلم'], answer:2 },
+      // --- مضاد ومرادف ---
+      { type:'mcq', badge:'مفردات — المضاد', text:'ما مضاد كلمة "جميل"؟', options:['حسن','رائع','قبيح','لطيف'], answer:2 },
+      { type:'mcq', badge:'مفردات — المرادف', text:'ما مرادف كلمة "سعيد"؟', options:['حزين','مسرور','غاضب','خائف'], answer:1 },
+      { type:'mcq', badge:'مفردات — المضاد', text:'ما مضاد كلمة "كبير"؟', options:['ضخم','ضعيف','صغير','رفيع'], answer:2 },
+      { type:'mcq', badge:'مفردات — المضاد', text:'ما مضاد كلمة "نهار"؟', options:['فجر','مساء','ليل','عصر'], answer:2 },
+      { type:'mcq', badge:'مفردات — المرادف', text:'ما مرادف كلمة "شجاع"؟', options:['جبان','خائف','بطل','ضعيف'], answer:2 },
+      { type:'mcq', badge:'مفردات — المضاد', text:'ما مضاد كلمة "بطيء"؟', options:['سريع','هادئ','كسول','نشيط'], answer:0 },
+      // --- إملاء ---
+      { type:'mcq', badge:'إملاء — التاء', text:'أيٌّ من هذه الكلمات تنتهي بتاء مربوطة (ة)؟', options:['بيت','أخت','شجرة','مات'], answer:2 },
+      { type:'mcq', badge:'إملاء — الألف', text:'في كلمة "حبلى"، الألف في آخرها هي:', options:['ألف مقصورة','ألف ممدودة','واو','تاء مربوطة'], answer:0 },
+      { type:'mcq', badge:'إملاء — الهمزة', text:'اختر الكتابة الصحيحة:', options:['سأل','سئل','سءل','ساءل'], answer:0 },
+      { type:'fill', badge:'إملاء — أكمل', text:'أكمل الكلمة الناقصة:\nذهبت الطالب___ إلى المدرسة. (التاء المربوطة أو المبسوطة)', answer:'ة', hint:'كلمة "طالبة" تنتهي بتاء مربوطة لأنها مؤنثة' },
+      // --- تعبير وتركيب ---
+      { type:'mcq', badge:'تعبير وصياغة', text:'أيٌّ من هذه الجمل صحيحة نحوياً؟', options:['الولدُ جاء المدرسة','ذهب الولدُ إلى المدرسة','المدرسةَ ذهب الولد','إلى المدرسة الولدُ'], answer:1 },
+      { type:'fill', badge:'تركيب جملة', text:'رتّب الكلمات لتكوّن جملة مفيدة:\n(مجتهد — التلميذ — في الدراسة)', answer:'التلميذ مجتهد في الدراسة', hint:'ابدأ بالمبتدأ ثم الخبر ثم شبه الجملة' },
+      { type:'mcq', badge:'تعبير — وصف', text:'صِف المنظر: (طفل يلعب في الحديقة)', options:['الحديقة جميلة جداً','يلعب الطفلُ في الحديقة بسعادة','الطفل كبير','الحديقة فيها أشجار'], answer:1 },
+      // --- قراءة إضافية ---
+      { type:'mcq', badge:'فهم المقروء', text:'"الأسرة هي أساس المجتمع، تتكوّن من الأب والأم والأبناء، ويسودها المحبة والتعاون."\nمم تتكوّن الأسرة؟', options:['من الجيران','من الأصدقاء','من الأب والأم والأبناء','من المعلمين'], answer:2 },
+      { type:'mcq', badge:'فهم المقروء', text:'من النص السابق، ما الذي يسود الأسرة؟', options:['الخلاف والشجار','المحبة والتعاون','الغيرة والحسد','اللامبالاة'], answer:1 },
+      { type:'mcq', badge:'نحو — حروف الجر', text:'أيٌّ من الكلمات التالية حرف جر؟', options:['كتب','الولد','في','جميل'], answer:2 },
+      { type:'mcq', badge:'نحو — حروف الجر', text:'في الجملة "جلست على الكرسي"، ما حرف الجر؟', options:['جلست','على','الكرسي','في'], answer:1 }
+    ]
+  },
+
+  math: {
+    title: 'الرياضيات 🔢',
+    color: '#f43f5e',
+    questions: [
+      // --- أعداد ---
+      { type:'mcq', badge:'الأعداد والترتيب', text:'رتّب من الأصغر إلى الأكبر:\n523 — 235 — 352', options:['523—352—235','235—352—523','352—235—523','235—523—352'], answer:1 },
+      { type:'mcq', badge:'قراءة الأعداد', text:'ما قيمة الرقم 4 في العدد 478؟', options:['4','40','400','4000'], answer:2 },
+      { type:'mcq', badge:'قراءة الأعداد', text:'ما قيمة الرقم 7 في العدد 371؟', options:['7','70','700','7000'], answer:1 },
+      { type:'mcq', badge:'تفكيك الأعداد', text:'العدد 635 يساوي:', options:['6 مئات+3 عشرات+5 آحاد','3 مئات+6 عشرات+5 آحاد','5 مئات+3 عشرات+6 آحاد','6 آحاد+3 مئات+5 عشرات'], answer:0 },
+      { type:'mcq', badge:'تفكيك الأعداد', text:'العدد 809 يساوي:', options:['8 مئات+0 عشرات+9 آحاد','8 مئات+9 عشرات+0 آحاد','0 مئات+8 عشرات+9 آحاد','9 مئات+0 عشرات+8 آحاد'], answer:0 },
+      { type:'mcq', badge:'المقارنة', text:'أيٌّ من الأعداد التالية أكبر؟', options:['497','479','749','974'], answer:3 },
+      { type:'mcq', badge:'المقارنة', text:'رتّب من الأكبر إلى الأصغر: 156 — 615 — 516 — 165', options:['615—516—165—156','156—165—516—615','615—516—156—165','516—615—165—156'], answer:2 },
+      // --- جمع ---
+      { type:'mcq', badge:'الجمع', text:'346 + 257 = ؟', options:['593','603','583','613'], answer:1 },
+      { type:'mcq', badge:'الجمع', text:'458 + 326 = ؟', options:['774','784','764','794'], answer:1 },
+      { type:'fill', badge:'الجمع', text:'أوجد الناتج: 125 + 250 + 100 = ....', answer:'475', hint:'اجمع الأعداد الثلاثة خطوة بخطوة' },
+      { type:'mcq', badge:'الجمع', text:'137 + 246 + 315 = ؟', options:['698','688','708','718'], answer:0 },
+      { type:'fill', badge:'الجمع', text:'أتمم: 243 + ___ = 500', answer:'257', hint:'500 - 243 = ؟' },
+      // --- طرح ---
+      { type:'mcq', badge:'الطرح', text:'724 − 385 = ؟', options:['349','339','359','329'], answer:1 },
+      { type:'mcq', badge:'الطرح', text:'600 − 234 = ؟', options:['376','366','386','356'], answer:0 },
+      { type:'fill', badge:'الطرح', text:'أتمم: 500 − ___ = 187', answer:'313', hint:'500 - 187 = ؟' },
+      { type:'mcq', badge:'الطرح', text:'831 − 456 = ؟', options:['385','375','395','365'], answer:1 },
+      // --- ضرب ---
+      { type:'mcq', badge:'الضرب — جدول الضرب', text:'7 × 8 = ؟', options:['54','56','64','49'], answer:1 },
+      { type:'mcq', badge:'الضرب — جدول الضرب', text:'9 × 6 = ؟', options:['48','54','63','45'], answer:1 },
+      { type:'mcq', badge:'الضرب — جدول الضرب', text:'6 × 7 = ؟', options:['42','36','48','54'], answer:0 },
+      { type:'mcq', badge:'الضرب — جدول الضرب', text:'8 × 9 = ؟', options:['63','72','81','64'], answer:1 },
+      { type:'mcq', badge:'الضرب — جدول الضرب', text:'4 × 7 = ؟', options:['24','28','32','21'], answer:1 },
+      { type:'fill', badge:'الضرب', text:'أحسب: 5 × 9 − 10 = ....', answer:'35', hint:'أولاً الضرب: 5×9=45، ثم اطرح 10' },
+      { type:'mcq', badge:'الضرب — مسألة', text:'عند سعيد 4 أحواض، في كل حوض 11 سمكة. كم عدد الأسماك كلها؟', options:['36','40','44','32'], answer:2 },
+      { type:'mcq', badge:'الضرب — مسألة', text:'اشترت أمينة 6 أكياس من السكر، وزن كل كيس 2 كيلوغرام. كم مجموع الوزن؟', options:['10','12','14','8'], answer:1 },
+      // --- قسمة ---
+      { type:'mcq', badge:'القسمة', text:'48 ÷ 6 = ؟', options:['6','7','8','9'], answer:2 },
+      { type:'mcq', badge:'القسمة', text:'63 ÷ 9 = ؟', options:['6','7','8','9'], answer:1 },
+      { type:'mcq', badge:'القسمة', text:'56 ÷ 7 = ؟', options:['6','7','8','9'], answer:2 },
+      { type:'mcq', badge:'القسمة', text:'72 ÷ 8 = ؟', options:['7','8','9','10'], answer:2 },
+      { type:'mcq', badge:'مسألة — قسمة', text:'لدى المعلمة 21 كتاباً وزّعتها على 7 تلاميذ بالتساوي. كم كتاباً نال كل تلميذ؟', options:['2','3','4','5'], answer:1 },
+      { type:'mcq', badge:'مسألة — قسمة', text:'قُطعت حبل طوله 36 سنتيمتراً إلى 4 قطع متساوية. ما طول كل قطعة؟', options:['8','9','10','7'], answer:1 },
+      // --- مسائل مركبة ---
+      { type:'mcq', badge:'مسألة مركّبة', text:'باعت بقالة 320 لتراً، وباعت أخرى 264 لتراً. بكم لتراً تفوقت الأولى على الثانية؟', options:['54','56','46','66'], answer:1 },
+      { type:'mcq', badge:'مسألة — جمع', text:'في مكتبة الصف الثالث 176 قصة وفي الصف الثاني 238 قصة. كم القصص معاً؟', options:['404','414','394','424'], answer:0 },
+      { type:'mcq', badge:'مسألة مركّبة', text:'اشترى رامي 3 أقلام بـ 15 دج للقلم الواحد. كم دفع؟', options:['30','40','45','50'], answer:2 },
+      { type:'mcq', badge:'مسألة مركّبة', text:'كان لدى ياسمينة 250 دج، أنفقت 125 دج. كم تبقّى معها؟', options:['100','115','125','130'], answer:2 },
+      // --- هندسة ---
+      { type:'mcq', badge:'الهندسة — الأشكال', text:'الشكل الذي له 4 أضلاع متساوية و4 زوايا قائمة هو:', options:['المثلث','المستطيل','المربع','الدائرة'], answer:2 },
+      { type:'mcq', badge:'الهندسة', text:'كم ضلعاً للمثلث؟', options:['2','3','4','5'], answer:1 },
+      { type:'mcq', badge:'الهندسة', text:'ما الشكل الذي ليس له أضلاع؟', options:['المربع','المثلث','الدائرة','المستطيل'], answer:2 },
+      { type:'mcq', badge:'الهندسة — المحيط', text:'ما محيط مربع طول ضلعه 5 سم؟', options:['10 سم','15 سم','20 سم','25 سم'], answer:2 },
+      // --- قياس ---
+      { type:'mcq', badge:'القياس', text:'الوحدة المناسبة لقياس طول الملعب:', options:['السنتمتر','المليمتر','المتر','الكيلومتر'], answer:2 },
+      { type:'mcq', badge:'القياس', text:'1 متر = ؟ سنتيمتر', options:['10','100','1000','10000'], answer:1 },
+      { type:'mcq', badge:'الكتل', text:'1 كيلوغرام = ؟ غرام', options:['100','1000','500','10'], answer:1 },
+      { type:'mcq', badge:'الساعة والوقت', text:'إذا كان الوقت 8:25، فما الوقت بعد 30 دقيقة؟', options:['8:55','9:05','8:45','9:25'], answer:0 },
+      { type:'mcq', badge:'الساعة والوقت', text:'كم دقيقة في ساعة واحدة؟', options:['30','45','60','100'], answer:2 }
+    ]
+  },
+
+  science: {
+    title: 'التربية العلمية والتكنولوجية 🔬',
+    color: '#22c55e',
+    questions: [
+      // --- النباتات ---
+      { type:'mcq', badge:'النباتات', text:'ما المادة التي تصنعها النباتات الخضراء بواسطة ضوء الشمس؟', options:['الماء','الهواء','الغذاء (السكر)','التراب'], answer:2 },
+      { type:'mcq', badge:'النباتات', text:'ما الذي تحتاجه النباتات لتنمو بشكل صحيح؟', options:['الضوء والماء والتربة','الظلام والملح','الثلج فقط','لا تحتاج شيئاً'], answer:0 },
+      { type:'mcq', badge:'النباتات', text:'ما وظيفة الجذر في النبات؟', options:['تصنيع الغذاء','امتصاص الماء والأملاح من التربة','حمل الثمار','تلقي ضوء الشمس'], answer:1 },
+      { type:'mcq', badge:'النباتات', text:'ما وظيفة الأوراق في النبات؟', options:['امتصاص الماء','تثبيت النبات في التربة','صنع الغذاء بواسطة عملية البناء الضوئي','نقل الماء'], answer:2 },
+      // --- الحيوانات ---
+      { type:'mcq', badge:'الحيوانات', text:'أيٌّ من هذه الحيوانات يتغذى على الحشرات فقط؟', options:['الأسد','الضفدع','البقرة','الأرنب'], answer:1 },
+      { type:'mcq', badge:'الحيوانات', text:'أيٌّ من هذه الحيوانات آكل عشب (نباتي)؟', options:['الأسد','الذئب','البقرة','النمر'], answer:2 },
+      { type:'mcq', badge:'الحيوانات', text:'كيف يتنفس السمك؟', options:['برئتين مثل الإنسان','بجلده','بخياشيم','بأنفه'], answer:2 },
+      { type:'mcq', badge:'الحيوانات', text:'ما الحيوان الذي ينتج الحليب ويُحلب؟', options:['الدجاجة','البقرة','العصفور','الأرنب'], answer:1 },
+      { type:'mcq', badge:'الحيوانات', text:'أيٌّ من هذه الطيور لا يستطيع الطيران؟', options:['الحمامة','العقاب','النعامة','السنونو'], answer:2 },
+      // --- جسم الإنسان ---
+      { type:'mcq', badge:'جسم الإنسان', text:'ما وظيفة القلب في جسم الإنسان؟', options:['هضم الطعام','التنفس','ضخ الدم في جميع أنحاء الجسم','رؤية الأشياء'], answer:2 },
+      { type:'mcq', badge:'جسم الإنسان', text:'ما وظيفة الرئتين؟', options:['هضم الطعام','التنفس وتبادل الغازات','ضخ الدم','رؤية الأشياء'], answer:1 },
+      { type:'mcq', badge:'جسم الإنسان', text:'ما العضو المسؤول عن هضم الطعام؟', options:['القلب','الدماغ','المعدة','الرئة'], answer:2 },
+      { type:'mcq', badge:'الحواس الخمس', text:'بأي حاسة نسمع الأصوات؟', options:['البصر','الشم','اللمس','السمع'], answer:3 },
+      { type:'mcq', badge:'الحواس الخمس', text:'ما عضو حاسة الشم؟', options:['الأذن','العين','الأنف','اللسان'], answer:2 },
+      { type:'mcq', badge:'الحواس الخمس', text:'بأي حاسة نتذوق الطعام؟', options:['البصر','الذوق باللسان','اللمس','السمع'], answer:1 },
+      // --- المادة ---
+      { type:'mcq', badge:'المادة وخصائصها', text:'أيٌّ من هذه المواد يذوب في الماء؟', options:['الرمل','الزيت','السكر','الحجارة'], answer:2 },
+      { type:'mcq', badge:'المادة وخصائصها', text:'ما حالة الماء عند 0 درجة مئوية؟', options:['سائل','غاز','صلب (جليد)','بخار'], answer:2 },
+      { type:'mcq', badge:'المادة وخصائصها', text:'ما حالة البخار؟', options:['صلبة','سائلة','غازية','لا شيء مما سبق'], answer:2 },
+      // --- البيئة ---
+      { type:'mcq', badge:'البيئة', text:'ما الغاز الذي يستنشقه الإنسان ليعيش؟', options:['ثاني أكسيد الكربون','النيتروجين','الأكسجين','البخار'], answer:2 },
+      { type:'mcq', badge:'البيئة', text:'ما الأثر السلبي لإلقاء النفايات في الأنهار؟', options:['يجمّل المنظر','يلوّث المياه ويضرّ الكائنات المائية','يغذّي الأسماك','لا يسبب ضرراً'], answer:1 },
+      { type:'mcq', badge:'البيئة', text:'كيف نحافظ على نظافة البيئة؟', options:['نلقي النفايات في الشارع','نقطع الأشجار','نضع النفايات في الحاوية ونرحب بالتشجير','نحرق النفايات في الحديقة'], answer:2 },
+      // --- الكهرباء ---
+      { type:'mcq', badge:'الكهرباء', text:'ما الأداة التي تحوّل الكهرباء إلى ضوء؟', options:['المروحة','المصباح الكهربائي','التلفاز','الثلاجة'], answer:1 },
+      { type:'mcq', badge:'الكهرباء', text:'ما مصدر طاقة الأجهزة الكهربائية في المنزل؟', options:['الخشب','الكهرباء','البنزين','الهواء'], answer:1 },
+      // --- الطقس ---
+      { type:'mcq', badge:'الطقس والفصول', text:'في أي فصل تتساقط الأمطار بكثرة في الجزائر؟', options:['الصيف','الخريف والشتاء','الربيع فقط','طوال السنة'], answer:1 },
+      { type:'mcq', badge:'الغذاء الصحي', text:'أيٌّ من هذه الأغذية يمدّنا بالطاقة؟', options:['الماء','الخضروات','الخبز والسكريات','الملح'], answer:2 },
+      { type:'mcq', badge:'الغذاء الصحي', text:'ما أهمية شرب الماء يومياً؟', options:['ليس مهماً','ترطيب الجسم ومساعدة الوظائف الحيوية','يسبب السمنة','لا توجد أهمية'], answer:1 }
+    ]
+  },
+
+  islamic: {
+    title: 'التربية الإسلامية ☪️',
+    color: '#a855f7',
+    questions: [
+      // --- أركان الإسلام ---
+      { type:'mcq', badge:'العقيدة — أركان الإسلام', text:'ما عدد أركان الإسلام؟', options:['3','4','5','6'], answer:2 },
+      { type:'mcq', badge:'العقيدة — أركان الإسلام', text:'ما أول ركن من أركان الإسلام؟', options:['الصلاة','الزكاة','الصوم','الشهادتان'], answer:3 },
+      { type:'mcq', badge:'العقيدة — أركان الإسلام', text:'ما الركن الثاني من أركان الإسلام؟', options:['الصلاة','الزكاة','الصوم','الحج'], answer:0 },
+      { type:'mcq', badge:'العقيدة — أركان الإسلام', text:'ما الركن الخامس والأخير من أركان الإسلام؟', options:['الصلاة','الزكاة','الصوم','الحج'], answer:3 },
+      // --- القرآن الكريم ---
+      { type:'mcq', badge:'القرآن الكريم', text:'ما سورة القرآن التي تُسمى "أم الكتاب"؟', options:['البقرة','الفاتحة','الإخلاص','الناس'], answer:1 },
+      { type:'mcq', badge:'القرآن الكريم', text:'كم عدد آيات سورة الفاتحة؟', options:['5','6','7','8'], answer:2 },
+      { type:'mcq', badge:'القرآن الكريم', text:'ما السورة التي تتحدث عن توحيد الله؟', options:['الناس','الفلق','الإخلاص','الكوثر'], answer:2 },
+      { type:'fill', badge:'حفظ — الإخلاص', text:'أكمل الآية الكريمة:\n"قُلْ هُوَ اللهُ ........"', answer:'أحد', hint:'من سورة الإخلاص' },
+      { type:'fill', badge:'حفظ — الفاتحة', text:'أكمل الآية: "الحمد لله رب ........"', answer:'العالمين', hint:'أول آية في سورة الفاتحة بعد البسملة' },
+      { type:'mcq', badge:'القرآن الكريم', text:'بماذا تبدأ كل سورة من القرآن الكريم (عدا التوبة)؟', options:['الحمد لله','سبحان الله','بسم الله الرحمن الرحيم','الله أكبر'], answer:2 },
+      // --- السيرة النبوية ---
+      { type:'mcq', badge:'السيرة النبوية', text:'في أي مدينة وُلد النبي محمد ﷺ؟', options:['المدينة المنورة','مكة المكرمة','الطائف','القدس'], answer:1 },
+      { type:'mcq', badge:'السيرة النبوية', text:'ما اسم والد النبي محمد ﷺ؟', options:['عبد الله','عبد المطلب','أبو طالب','وهب'], answer:0 },
+      { type:'mcq', badge:'السيرة النبوية', text:'في أي سنة هاجر النبي ﷺ من مكة إلى المدينة؟', options:['سنة 1 هجرية','سنة 0 هجرية (الهجرة هي بداية التقويم)','سنة 5 هجرية','سنة 10 هجرية'], answer:1 },
+      { type:'mcq', badge:'السيرة النبوية', text:'كم عمر النبي ﷺ عندما توفّي؟', options:['55 سنة','60 سنة','63 سنة','70 سنة'], answer:2 },
+      // --- الأخلاق والعبادات ---
+      { type:'mcq', badge:'الأخلاق الإسلامية', text:'ما الخلق الذي يجب أن يتصف به المسلم مع والديه؟', options:['العقوق','البر والطاعة','اللامبالاة','التجاهل'], answer:1 },
+      { type:'mcq', badge:'العبادات', text:'كم عدد الصلوات المفروضة في اليوم والليلة؟', options:['3','4','5','6'], answer:2 },
+      { type:'mcq', badge:'العبادات — الصلاة', text:'ما أول صلاة في اليوم؟', options:['الظهر','العصر','الفجر','المغرب'], answer:2 },
+      { type:'mcq', badge:'العبادات — الصلاة', text:'ما عدد ركعات صلاة المغرب؟', options:['2','3','4','5'], answer:1 },
+      { type:'mcq', badge:'الصيام', text:'في أي شهر يصوم المسلمون؟', options:['محرم','شعبان','رمضان','ذو الحجة'], answer:2 },
+      { type:'mcq', badge:'الأخلاق', text:'ماذا يقول المسلم عند بدء الطعام؟', options:['الحمد لله','بسم الله','سبحان الله','الله أكبر'], answer:1 },
+      { type:'mcq', badge:'الأخلاق', text:'ماذا يقول المسلم بعد الانتهاء من الطعام؟', options:['سبحان الله','الله أكبر','الحمد لله','بسم الله'], answer:2 },
+      { type:'mcq', badge:'التوحيد', text:'ما معنى "الله أكبر"؟', options:['الله موجود','الله كبير في العمر','الله أعظم من كل شيء','الله قريب منا'], answer:2 },
+      // --- قيم إسلامية ---
+      { type:'mcq', badge:'القيم الإسلامية', text:'ما المقصود بالأمانة؟', options:['الكذب على الآخرين','أداء الحقوق لأصحابها وعدم الخيانة','أخذ ما ليس لنا','التهرب من المسؤولية'], answer:1 },
+      { type:'mcq', badge:'القيم الإسلامية', text:'ما الخلق الإسلامي الذي يجمع الناس ويقوّي المجتمع؟', options:['الأنانية','التعاون والتضامن','الحسد','الكبر'], answer:1 },
+      { type:'mcq', badge:'القيم الإسلامية', text:'ما موقف الإسلام من احترام الجار؟', options:['لا يهم','الجار لا حق له علينا','الإسلام يأمر باحترام الجار والإحسان إليه','نتجاهل الجار'], answer:2 }
+    ]
+  },
+
+  civic: {
+    title: 'التربية المدنية 🏛️',
+    color: '#f59e0b',
+    questions: [
+      // --- الهوية الوطنية ---
+      { type:'mcq', badge:'الهوية الوطنية', text:'ما عاصمة الجزائر؟', options:['وهران','قسنطينة','الجزائر العاصمة','عنابة'], answer:2 },
+      { type:'mcq', badge:'الهوية الوطنية', text:'ما ألوان العلم الجزائري؟', options:['الأحمر والأبيض والأزرق','الأخضر والأبيض مع الهلال الأحمر والنجمة','الأصفر والأخضر','الأزرق والأبيض'], answer:1 },
+      { type:'mcq', badge:'الهوية الوطنية', text:'متى تُحتفل الجزائر بعيد استقلالها؟', options:['1 مايو','1 نوفمبر','5 يوليو','31 ديسمبر'], answer:2 },
+      { type:'mcq', badge:'الهوية الوطنية', text:'متى يُحتفل بعيد الثورة الجزائرية (عيد الانطلاقة)؟', options:['5 يوليو','1 نوفمبر','19 مارس','8 مارس'], answer:1 },
+      { type:'mcq', badge:'الهوية الوطنية', text:'ما اللغة الرسمية للجزائر؟', options:['الفرنسية','الأمازيغية','العربية','الإنجليزية'], answer:2 },
+      { type:'mcq', badge:'الهوية الوطنية', text:'ما دين الدولة الجزائرية؟', options:['المسيحية','اليهودية','الإسلام','لا دين رسمي'], answer:2 },
+      // --- الحقوق والواجبات ---
+      { type:'mcq', badge:'الحقوق والواجبات', text:'ما واجب التلميذ في المدرسة؟', options:['اللعب طوال اليوم','إتقان الدراسة واحترام الأساتذة','تجاهل الدروس','إزعاج الزملاء'], answer:1 },
+      { type:'mcq', badge:'الحقوق والواجبات', text:'ما حق الطفل الأساسي الذي يكفله القانون؟', options:['حق العمل','حق التعليم والرعاية الصحية','لا حقوق للأطفال','حق الاقتراع'], answer:1 },
+      { type:'mcq', badge:'الحقوق والواجبات', text:'ما واجب المواطن اتجاه بلده؟', options:['إهمال الشأن العام','الخيانة','حب الوطن والدفاع عنه والمحافظة على ممتلكاته','عدم المشاركة في الحياة المدنية'], answer:2 },
+      { type:'mcq', badge:'الحقوق والواجبات', text:'ما حق المريض؟', options:['لا حق له','الحصول على العلاج والرعاية الصحية','العمل فقط','التعليم فقط'], answer:1 },
+      // --- المؤسسات ---
+      { type:'mcq', badge:'المؤسسات الوطنية', text:'ما الجهة المسؤولة عن حفظ الأمن في الجزائر؟', options:['المدرسة','المستشفى','الشرطة والجيش','البلدية'], answer:2 },
+      { type:'mcq', badge:'المؤسسات الوطنية', text:'ما وظيفة المستشفى؟', options:['تعليم الأطفال','علاج المرضى وتقديم الرعاية الصحية','حفظ الأمن','إدارة شؤون المدينة'], answer:1 },
+      { type:'mcq', badge:'المؤسسات الوطنية', text:'ما وظيفة البلدية؟', options:['علاج المرضى','تعليم الطلاب','إدارة الشؤون المحلية وخدمة المواطنين','حفظ الأمن'], answer:2 },
+      { type:'mcq', badge:'المؤسسات الوطنية', text:'من هو رئيس الجمهورية الجزائرية حالياً (عام 2024-2025)؟', options:['عبد المجيد تبون','أحمد بن بلة','هواري بومدين','عبد العزيز بوتفليقة'], answer:0 },
+      // --- القيم المدنية ---
+      { type:'mcq', badge:'التضامن الاجتماعي', text:'ما المقصود بالتضامن الاجتماعي؟', options:['مساعدة الآخرين في وقت الشدة','التنافس مع الآخرين','الابتعاد عن الناس','الاهتمام بالنفس فقط'], answer:0 },
+      { type:'mcq', badge:'الحياة المدنية', text:'ما ثمرة احترام القانون في المجتمع؟', options:['الفوضى والاضطراب','الانعزال','الأمن والنظام وتعايش الناس','لا ثمرة'], answer:2 },
+      { type:'mcq', badge:'البيئة والمواطنة', text:'ما دور المواطن الصالح في الحفاظ على البيئة؟', options:['إلقاء النفايات في الشوارع','قطع الأشجار','تلويث الأنهار','الحفاظ على النظافة وزراعة الأشجار'], answer:3 },
+      { type:'mcq', badge:'المواطنة', text:'ما السلوك الذي يُعبّر عن المواطنة الحقيقية؟', options:['إتلاف الممتلكات العامة','احترام القانون والمساهمة في تنمية البلد','الإهمال واللامبالاة','التعصب والتمييز'], answer:1 },
+      { type:'mcq', badge:'العمل والمهن', text:'ما أهمية العمل في حياة الإنسان؟', options:['يضرّ الصحة','لا أهمية له','يمكّن الإنسان من كسب رزقه وخدمة المجتمع','يسبب المشاكل'], answer:2 },
+      { type:'mcq', badge:'الأسرة والمجتمع', text:'ما الوحدة الأساسية التي يقوم عليها المجتمع؟', options:['المدرسة','الأسرة','البلدية','السوق'], answer:1 }
+    ]
+  },
+
+  history: {
+    title: 'التاريخ والجغرافيا 🗺️',
+    color: '#06b6d4',
+    questions: [
+      // --- تاريخ الجزائر ---
+      { type:'mcq', badge:'تاريخ الجزائر', text:'متى اندلعت الثورة التحريرية الجزائرية؟', options:['1 نوفمبر 1945','1 نوفمبر 1954','5 يوليو 1962','19 مارس 1962'], answer:1 },
+      { type:'mcq', badge:'تاريخ الجزائر', text:'متى نالت الجزائر استقلالها؟', options:['1954','1960','1962','1965'], answer:2 },
+      { type:'mcq', badge:'تاريخ — أعلام', text:'من هو البطل الذي قاوم الاحتلال الفرنسي في القرن 19؟', options:['هواري بومدين','الأمير عبد القادر','أحمد بن بلة','العربي بن مهيدي'], answer:1 },
+      { type:'mcq', badge:'تاريخ — أعلام', text:'من هو أول رئيس للجزائر المستقلة؟', options:['هواري بومدين','العربي بن مهيدي','أحمد بن بلة','الشاذلي بن جديد'], answer:2 },
+      { type:'mcq', badge:'تاريخ الجزائر', text:'متى بدأ الاحتلال الفرنسي للجزائر؟', options:['1830','1945','1954','1962'], answer:0 },
+      { type:'mcq', badge:'تاريخ الجزائر', text:'كم دامت الثورة التحريرية الجزائرية؟', options:['5 سنوات','7 سنوات وأشهر','10 سنوات','3 سنوات'], answer:1 },
+      { type:'mcq', badge:'تاريخ — شهداء', text:'من هو الشهيد الذي قال: "الجزائر بلد المليون شهيد"؟', options:['الأمير عبد القادر','العربي بن مهيدي','لاربي بن مهيدي','أحمد زبانة'], answer:1 },
+      // --- جغرافيا الجزائر ---
+      { type:'mcq', badge:'جغرافيا الجزائر', text:'ما أكبر صحراء في العالم التي تقع معظمها في الجزائر؟', options:['صحراء ربع الخالي','الصحراء الكبرى','صحراء غوبي','الصحراء الأسترالية'], answer:1 },
+      { type:'mcq', badge:'جغرافيا الجزائر', text:'ما البحر الذي يحدّ الجزائر من الشمال؟', options:['البحر الأحمر','المحيط الأطلسي','البحر الأبيض المتوسط','خليج غينيا'], answer:2 },
+      { type:'mcq', badge:'جغرافيا', text:'ما أطول نهر في الجزائر؟', options:['نهر الشلف','نهر سيبوس','وادي ميزاب','نهر النيل'], answer:0 },
+      { type:'mcq', badge:'جغرافيا — المناخ', text:'ما نوع المناخ السائد في شمال الجزائر؟', options:['استوائي','صحراوي جاف','متوسطي معتدل','قطبي'], answer:2 },
+      { type:'mcq', badge:'الجغرافيا — الأقاليم', text:'ما المنطقة التي يُزرع فيها التمر بكثرة في الجزائر؟', options:['المناطق الجبلية','الواحات الصحراوية','الساحل','الهضاب العليا'], answer:1 },
+      { type:'mcq', badge:'جغرافيا — التضاريس', text:'ما اسم أعلى قمة جبلية في الجزائر؟', options:['جبل شيليا','جبل تيدغين','جبل الونشريس','جبل الأطلس'], answer:1 },
+      { type:'mcq', badge:'جغرافيا — الولايات', text:'كم عدد ولايات الجزائر حالياً؟', options:['36 ولاية','48 ولاية','58 ولاية','63 ولاية'], answer:2 },
+      // --- جغرافيا عامة ---
+      { type:'mcq', badge:'جغرافيا عامة', text:'ما القارة التي تقع فيها الجزائر؟', options:['آسيا','أوروبا','أمريكا','أفريقيا'], answer:3 },
+      { type:'mcq', badge:'جغرافيا عامة', text:'ما الدول التي تحدّ الجزائر من الغرب؟', options:['تونس وليبيا','المغرب وموريتانيا','مالي والنيجر','ليبيا وتونس'], answer:1 },
+      { type:'mcq', badge:'جغرافيا عامة', text:'ما الدول التي تحدّ الجزائر من الشرق؟', options:['المغرب وموريتانيا','مالي والنيجر','تونس وليبيا','السنغال وغينيا'], answer:2 },
+      { type:'mcq', badge:'جغرافيا — الموارد', text:'ما أهم الثروات الطبيعية في الجزائر؟', options:['الذهب والفضة','النفط والغاز الطبيعي','الخشب والفحم','القطن والحرير'], answer:1 },
+      { type:'mcq', badge:'جغرافيا — المدن', text:'ما ثاني أكبر مدينة في الجزائر؟', options:['قسنطينة','عنابة','وهران','سطيف'], answer:2 },
+      { type:'mcq', badge:'تاريخ وجغرافيا', text:'ما المدينة الجزائرية التي تُعرف بـ"مدينة الجسور المعلقة"؟', options:['وهران','الجزائر العاصمة','قسنطينة','عنابة'], answer:2 }
+    ]
+  }
+};
+
+// ================= STATE =================
+let state = {
+  current: {},
+  scores: { total: 0, correct: 0, wrong: 0 },
+  answered: {}
+};
+
+// ================= QUIZ ENGINE =================
+function initQuiz(subject) {
+  const data = quizData[subject];
+  const container = document.getElementById(`quiz-${subject}`);
+  const qs = data.questions;
+
+  if (!state.current[subject]) {
+    state.current[subject] = { idx: 0, results: [] };
+  }
+
+  container.innerHTML = '';
+
+  const cur = state.current[subject];
+
+  // If finished
+  if (cur.idx >= qs.length) {
+    showResults(subject, container);
+    return;
+  }
+
+  // Header
+  const hdr = document.createElement('div');
+  hdr.className = 'quiz-header';
+  hdr.innerHTML = `
+    <div class="quiz-title">${data.title}</div>
+    <div class="quiz-progress">السؤال ${cur.idx + 1} / ${qs.length}</div>
+  `;
+  container.appendChild(hdr);
+
+  // Progress bar
+  const pb = document.createElement('div');
+  pb.className = 'progress-bar';
+  pb.innerHTML = `<div class="progress-fill" style="width:${(cur.idx / qs.length) * 100}%"></div>`;
+  container.appendChild(pb);
+
+  // Question
+  const q = qs[cur.idx];
+  const card = document.createElement('div');
+  card.className = 'question-card';
+
+  let html = `<span class="q-badge">${q.badge}</span>
+    <div class="q-text">${q.text.replace(/\n/g, '<br>')}</div>`;
+
+  if (q.type === 'mcq') {
+    html += `<div class="options">`;
+    const letters = ['أ', 'ب', 'ج', 'د'];
+    q.options.forEach((opt, i) => {
+      html += `<button class="option" onclick="answerMCQ('${subject}', ${i})">
+        <span class="option-letter">${letters[i]}</span>
+        ${opt}
+      </button>`;
+    });
+    html += `</div>`;
+  } else {
+    // fill
+    if (q.hint) html += `<div class="q-hint" id="hint-${subject}">💡 ${q.hint}</div>`;
+    html += `<input class="fill-input" id="fill-${subject}" placeholder="اكتب إجابتك هنا..." onkeydown="if(event.key==='Enter') checkFill('${subject}')">
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="checkFill('${subject}')">✅ تحقق</button>`;
+    if (q.hint) html += `<button class="btn btn-secondary" onclick="showHint('${subject}')">💡 مساعدة</button>`;
+    html += `</div>`;
+  }
+
+  html += `<div class="feedback" id="fb-${subject}"></div>`;
+  card.innerHTML = html;
+  container.appendChild(card);
+
+  // Nav
+  const nav = document.createElement('div');
+  nav.className = 'action-row';
+  nav.id = `nav-${subject}`;
+  nav.style.display = 'none';
+  nav.innerHTML = `
+    <button class="btn btn-primary" onclick="nextQuestion('${subject}')">السؤال التالي ←</button>
+    <button class="btn btn-secondary" onclick="showTab('home')">🏠 الرئيسية</button>
+  `;
+  container.appendChild(nav);
+}
+
+function answerMCQ(subject, chosen) {
+  const q = quizData[subject].questions[state.current[subject].idx];
+  const options = document.querySelectorAll(`#quiz-${subject} .option`);
+  options.forEach(o => { o.classList.add('disabled'); o.onclick = null; });
+
+  const correct = q.answer === chosen;
+  options[chosen].classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) options[q.answer].classList.add('correct');
+
+  showFeedback(subject, correct, q.options[q.answer]);
+  updateScore(correct);
+  state.current[subject].results.push(correct);
+  document.getElementById(`nav-${subject}`).style.display = 'flex';
+  if (correct) triggerConfetti();
+}
+
+function checkFill(subject) {
+  const q = quizData[subject].questions[state.current[subject].idx];
+  const input = document.getElementById(`fill-${subject}`);
+  if (!input || !input.value.trim()) return;
+
+  const userAns = input.value.trim();
+  // Accept Arabic or Latin numerals
+  const normalize = s => s.replace(/[0123456789]/g, d => '0123456789'.indexOf(d)).replace(/\s+/g, ' ').trim();
+  const correct = normalize(userAns) === normalize(q.answer) || 
+                  userAns.replace(/\s/g,'') === q.answer.replace(/\s/g,'') ||
+                  userAns === q.answer;
+
+  input.classList.add(correct ? 'correct' : 'wrong');
+  input.disabled = true;
+
+  showFeedback(subject, correct, q.answer);
+  updateScore(correct);
+  state.current[subject].results.push(correct);
+  document.getElementById(`nav-${subject}`).style.display = 'flex';
+  if (correct) triggerConfetti();
+}
+
+function showHint(subject) {
+  const el = document.getElementById(`hint-${subject}`);
+  if (el) el.style.display = 'block';
+}
+
+function showFeedback(subject, correct, correctAnswer) {
+  const fb = document.getElementById(`fb-${subject}`);
+  fb.className = `feedback show ${correct ? 'correct-fb' : 'wrong-fb'}`;
+  fb.innerHTML = correct
+    ? '🎉 أحسنت! إجابة صحيحة!'
+    : `❌ الإجابة الصحيحة هي: <strong>${correctAnswer}</strong>`;
+}
+
+function updateScore(correct) {
+  if (correct) {
+    state.scores.correct++;
+    state.scores.total += 10;
+  } else {
+    state.scores.wrong++;
+  }
+  document.getElementById('totalScore').textContent = state.scores.total;
+  document.getElementById('totalCorrect').textContent = state.scores.correct;
+  document.getElementById('totalWrong').textContent = state.scores.wrong;
+}
+
+function nextQuestion(subject) {
+  state.current[subject].idx++;
+  initQuiz(subject);
+}
+
+function showResults(subject, container) {
+  const results = state.current[subject].results;
+  const total = results.length;
+  const correct = results.filter(r => r).length;
+  const pct = Math.round((correct / total) * 100);
+
+  let emoji, msg;
+  if (pct >= 80) { emoji = '🏆'; msg = 'ممتاز! أنت نجم حقيقي!'; }
+  else if (pct >= 60) { emoji = '👍'; msg = 'جيد! استمر في المراجعة'; }
+  else if (pct >= 40) { emoji = '💪'; msg = 'حاول مرة أخرى، أنت تستطيع!'; }
+  else { emoji = '📚'; msg = 'راجع الدروس وحاول مجدداً'; }
+
+  container.innerHTML = `
+    <div class="results-card">
+      <div class="results-emoji">${emoji}</div>
+      <div class="results-score" style="color:${pct>=60?'#16a34a':'#dc2626'}">${pct}%</div>
+      <div class="results-msg">${msg}</div>
+      <div class="results-breakdown">
+        <div class="rb-item rb-correct">
+          <div class="rb-num">${correct}</div>
+          <div class="rb-label">إجابات صحيحة</div>
+        </div>
+        <div class="rb-item rb-wrong">
+          <div class="rb-num">${total - correct}</div>
+          <div class="rb-label">إجابات خاطئة</div>
+        </div>
+        <div class="rb-item">
+          <div class="rb-num" style="color:var(--sky)">${total}</div>
+          <div class="rb-label">مجموع الأسئلة</div>
+        </div>
+        <div class="rb-item">
+          <div class="rb-num" style="color:var(--sun)">${correct * 10}</div>
+          <div class="rb-label">النقاط المكتسبة</div>
+        </div>
+      </div>
+    </div>
+    <div class="action-row" style="justify-content:center">
+      <button class="btn btn-success" onclick="restartQuiz('${subject}')">🔄 أعد المحاولة</button>
+      <button class="btn btn-secondary" onclick="showTab('home')">🏠 الرئيسية</button>
+    </div>
+  `;
+
+  if (pct >= 80) triggerConfetti();
+}
+
+function restartQuiz(subject) {
+  state.current[subject] = { idx: 0, results: [] };
+  initQuiz(subject);
+}
+
+// ================= TABS =================
+function showTab(name) {
+  // Hide all
+  document.querySelectorAll('.home-section, .quiz-container').forEach(el => {
+    el.classList.remove('active');
+    el.style.display = 'none';
+  });
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+  const tabMap = { home: 0, arabic: 1, math: 2, science: 3, islamic: 4, civic: 5, history: 6 };
+  document.querySelectorAll('.tab')[tabMap[name]].classList.add('active');
+
+  if (name === 'home') {
+    const el = document.getElementById('tab-home');
+    el.classList.add('home-section');
+    el.style.display = 'block';
+  } else {
+    const el = document.getElementById(`tab-${name}`);
+    el.style.display = 'block';
+    el.classList.add('active');
+    initQuiz(name);
+  }
+}
+
+// ================= CONFETTI =================
+function triggerConfetti() {
+  const container = document.getElementById('confetti');
+  const colors = ['#f43f5e', '#fbbf24', '#22c55e', '#0ea5e9', '#a855f7', '#f97316'];
+  for (let i = 0; i < 30; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.cssText = `
+      left: ${Math.random() * 100}%;
+      background: ${colors[Math.floor(Math.random() * colors.length)]};
+      width: ${6 + Math.random() * 8}px;
+      height: ${6 + Math.random() * 8}px;
+      border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+      animation-duration: ${1.5 + Math.random() * 1.5}s;
+      animation-delay: ${Math.random() * 0.5}s;
+    `;
+    container.appendChild(piece);
+    setTimeout(() => piece.remove(), 3000);
+  }
+}
+
+// ================= INIT =================
+// Home is already shown by default
+document.getElementById('tab-home').style.display = 'block';
+</script>
+
 <script>
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('SW registered:', reg.scope))
+      .catch(err => console.log('SW error:', err));
+  });
 }
+
+// PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = document.getElementById('installBtn');
+  if (btn) btn.style.display = 'flex';
+});
+window.addEventListener('appinstalled', () => {
+  const btn = document.getElementById('installBtn');
+  if (btn) btn.style.display = 'none';
+  deferredPrompt = null;
+});
+function installApp() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+}
+</script>
+
+<script>
+function updateOnlineStatus() {
+  const banner = document.getElementById('offlineBanner');
+  if (banner) banner.style.display = navigator.onLine ? 'none' : 'block';
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+updateOnlineStatus();
 </script>
 </body>
 </html>
